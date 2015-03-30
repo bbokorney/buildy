@@ -16,12 +16,12 @@ var (
 )
 
 type Config struct {
-	User       string
-	Repo       string
-	Oauthtoken string
-	Path       string
-	Branches   []string
-	Emails     []string
+	User       string   `json:"user"`
+	Repo       string   `json:"repo"`
+	Oauthtoken string   `json:"oauthtoken"`
+	Path       string   `json:"path"`
+	Branches   []string `json:"branches"`
+	Emails     []string `json:"emails"`
 }
 
 func main() {
