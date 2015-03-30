@@ -2,4 +2,5 @@
 *.log
 *.config
 !example.config
-
+*.out
+*.swo
