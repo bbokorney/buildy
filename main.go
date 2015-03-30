@@ -33,7 +33,7 @@ type Config struct {
 
 func start(config Config) {
 	buildReqChan := make(chan BuildRequest)
-	builder := Builder{buildReqChan}
+	builder := Builder{buildReqChan, config.Path, config.Cmds}
 	for _, v := range config.Branches {
 		poller := BranchPoller{BranchInfo{
 			v, config.User, config.Repo, config.Oauthtoken, config.Emails},
