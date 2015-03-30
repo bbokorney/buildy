@@ -11,8 +11,9 @@ type BuildRequest struct {
 }
 
 type BuildResult struct {
-	pass bool
-	hash string
+	pass   bool
+	hash   string
+	output []byte
 }
 
 type Builder struct {
@@ -30,7 +31,6 @@ func (b *Builder) makeCmd(name string, args ...string) *exec.Cmd {
 func (b *Builder) getCurrentCommitHash() (hash string) {
 	cmd := b.makeCmd("git", "rev-parse", "HEAD")
 	output, err := cmd.Output()
-	log.Println(string(output))
 	if err != nil {
 		log.Printf("Error getting commit hash: %v", err)
 		return "Invalid-hash"
@@ -38,37 +38,34 @@ func (b *Builder) getCurrentCommitHash() (hash string) {
 	return string(output)
 }
 
-func (b *Builder) executeCmds(cmds []*exec.Cmd) error {
+func (b *Builder) executeCmds(cmds []*exec.Cmd) (output []byte, err error) {
 	for _, c := range cmds {
-		err := c.Run()
+		out, err := c.Output()
+		output = append(output, out...)
 		if err != nil {
-			return err
+			return output, err
 		}
 	}
-	return nil
+	return output, nil
 }
 
 func (b *Builder) run() {
 	log.Println("Builder started")
 
-	var commands []*exec.Cmd
-	commands = append(commands, b.makeCmd("git", "pull"))
-	for _, c := range b.cmds {
-		commands = append(commands, b.makeCmd(c.Name, c.Args...))
-	}
-
 	for {
 		select {
 		case req := <-b.buildReqChan:
 			log.Printf("Build request received: %v\n", req)
-			var cmds []*exec.Cmd
-			cmds = append(commands, b.makeCmd("git", "checkout", req.branchName))
-			err := b.executeCmds(cmds)
+			var cmds []*exec.Cmd = []*exec.Cmd{b.makeCmd("git", "checkout", req.branchName), b.makeCmd("git", "pull")}
+			for _, c := range b.cmds {
+				cmds = append(cmds, b.makeCmd(c.Name, c.Args...))
+			}
+			output, err := b.executeCmds(cmds)
 			hash := b.getCurrentCommitHash()
 			if err == nil {
-				req.respChan <- BuildResult{true, hash}
+				req.respChan <- BuildResult{true, hash, output}
 			} else {
-				req.respChan <- BuildResult{false, hash}
+				req.respChan <- BuildResult{false, hash, output}
 			}
 		}
 	}

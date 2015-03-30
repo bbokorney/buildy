@@ -72,7 +72,13 @@ func (bp *BranchPoller) run() {
 				resultChan := make(chan BuildResult)
 				bp.buildReqChan <- BuildRequest{bp.branchInfo.branchName, resultChan}
 				result := <-resultChan
-				log.Printf("Build result for branch %v: %v\n", bp.branchInfo.branchName, result)
+				passFail := "passed"
+				if !result.pass {
+					passFail = "failed"
+				}
+				log.Printf("Build for %v:%v %v!\n%v", bp.branchInfo.branchName,
+					result.hash[:7], passFail, string(result.output))
+
 			} else {
 				log.Printf("No change detected in branch %v\n", bp.branchInfo.branchName)
 			}
