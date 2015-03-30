@@ -24,7 +24,7 @@ func poll() (modified bool) {
 	return true
 }
 
-func (bp *BranchPoller) pollBranch() {
+func (bp *BranchPoller) run() {
 	log.Printf("Starting polling on branch %v\n", bp.branchInfo.branchName)
 	bp.lastModified = ""
 	// poll on the branch forerver

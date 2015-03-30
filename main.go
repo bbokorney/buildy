@@ -5,6 +5,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 
 	"github.com/DisposaBoy/JsonConfigReader"
 )
@@ -22,6 +23,18 @@ type Config struct {
 	Path       string   `json:"path"`
 	Branches   []string `json:"branches"`
 	Emails     []string `json:"emails"`
+}
+
+func start(config Config) {
+	buildReqChan := make(chan BuildRequest)
+	builder := Builder{buildReqChan}
+	for _, v := range config.Branches {
+		poller := BranchPoller{BranchInfo{
+			v, config.User, config.Repo, config.Oauthtoken, config.Emails},
+			"", buildReqChan, 5 * time.Second}
+		go poller.run()
+	}
+	builder.run()
 }
 
 func main() {
@@ -55,5 +68,5 @@ func main() {
 	} else {
 		log.Fatalf("Could not open config file: %v\n", err)
 	}
-
+	start(config)
 }
