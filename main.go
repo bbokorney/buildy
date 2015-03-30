@@ -16,13 +16,19 @@ var (
 		"the name of the config file")
 )
 
+type Command struct {
+	Name string   `json:"name"`
+	Args []string `json:"args"`
+}
+
 type Config struct {
-	User       string   `json:"user"`
-	Repo       string   `json:"repo"`
-	Oauthtoken string   `json:"oauthtoken"`
-	Path       string   `json:"path"`
-	Branches   []string `json:"branches"`
-	Emails     []string `json:"emails"`
+	User       string    `json:"user"`
+	Repo       string    `json:"repo"`
+	Oauthtoken string    `json:"oauthtoken"`
+	Path       string    `json:"path"`
+	Branches   []string  `json:"branches"`
+	Emails     []string  `json:"emails"`
+	Cmds       []Command `json:"cmds"`
 }
 
 func start(config Config) {
