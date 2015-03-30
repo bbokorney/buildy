@@ -15,7 +15,14 @@ var (
 		"the name of the config file")
 )
 
-type Config struct{}
+type Config struct {
+	User       string
+	Repo       string
+	Oauthtoken string
+	Path       string
+	Branches   []string
+	Emails     []string
+}
 
 func main() {
 	// parse flags
@@ -35,7 +42,7 @@ func main() {
 
 	// open config file
 	log.Printf("Opening config file %v\n", *configfile)
-	var config interface{}
+	var config Config
 	cfile, err := os.Open(*configfile)
 	defer cfile.Close()
 	if err == nil {
