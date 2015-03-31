@@ -78,6 +78,7 @@ func (bp *BranchPoller) run() {
 				}
 				log.Printf("Build for %v:%v %v!\n%v", bp.branchInfo.branchName,
 					result.hash[:7], passFail, string(result.output))
+				log.Printf("Post output: %v", string(result.postOutput))
 
 			} else {
 				log.Printf("No change detected in branch %v\n", bp.branchInfo.branchName)

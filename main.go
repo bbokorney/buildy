@@ -29,11 +29,12 @@ type Config struct {
 	Branches   []string  `json:"branches"`
 	Emails     []string  `json:"emails"`
 	Cmds       []Command `json:"cmds"`
+	PostCmd    Command   `json:"postcmd"`
 }
 
 func start(config Config) {
 	buildReqChan := make(chan BuildRequest)
-	builder := Builder{buildReqChan, config.Path, config.Cmds}
+	builder := Builder{buildReqChan, config.Path, config.Cmds, config.PostCmd}
 	for _, v := range config.Branches {
 		poller := BranchPoller{BranchInfo{
 			v, config.User, config.Repo, config.Oauthtoken, config.Emails},
